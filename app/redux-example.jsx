@@ -27,4 +27,4 @@ var action = {
 };
 
 store.dispatch(action);
-console.log(store.getState());
+console.log('Name should be Doug ', store.getState());
