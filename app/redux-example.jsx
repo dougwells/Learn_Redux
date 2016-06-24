@@ -9,7 +9,7 @@ var stateDefault = {
 var nextHobbyId = 1;
 var nextMovieId = 1
 
-var reducer = (state=stateDefault, action)=>{
+var Oldeducer = (state=stateDefault, action)=>{
   console.log("New action: ", action);
 
   switch(action.type){
@@ -52,6 +52,19 @@ var reducer = (state=stateDefault, action)=>{
   };
 
 };
+
+var nameReducer = (state="Anonymous", action) =>{
+  switch(action.type){
+    case 'CHANGE_NAME':
+      return action.name;
+
+      default: return state;
+  }
+};
+
+var reducer = redux.combineReducers({
+  name: nameReducer
+})
 
 var store = redux.createStore(reducer, redux.compose(
   window.devToolsExtension ? window.devToolsExtension() : f => f
