@@ -1,4 +1,5 @@
 var redux = require('redux');
+var axios = require('axios');
 
 // Name Reducer and action generators
 // -----------------------
@@ -66,8 +67,9 @@ var nextMovieId = 1
 
     default: return state;
    }
-
  };
+
+
 
 //Actions Generators - Movies
      var addMovie = (title, genre) => {
@@ -85,10 +87,50 @@ var nextMovieId = 1
        }
      };
 
+// Map Reducer and action generators
+// -----------------------
+var mapReducer = (state = {isFetching: false, url: undefined}, action) => {
+  switch(action.type){
+    case 'START_LOCATION_FETCH':
+      return {isFetching: true, url: undefined};
+
+    case 'COMPLETE_LOCATION_FETCH':
+      return {isFetching: false, url: action.url};
+
+    default: return state;
+  }
+};
+
+//Actions Generators - Map
+var startLocationFetch = () => {
+  return {
+    type: 'START_LOCATION_FETCH'
+  };
+};
+
+var completeLocationFetch = (url) => {
+  return {
+    type: 'COMPLETE_LOCATION_FETCH',
+    url
+  };
+};
+
+var fetchLocation = () =>{
+  store.dispatch(startLocationFetch());
+
+    axios.get('http://ipinfo.io').then(function(res){
+      var loc = res.data.loc;
+      var baseUrl = "http://maps.google.com/?q="
+      store.dispatch(completeLocationFetch(baseUrl+loc))
+    });
+
+};
+
 var reducer = redux.combineReducers({
   name: nameReducer,
   hobbies: hobbyReducer,
-  movies: movieReducer
+  movies: movieReducer,
+  map: mapReducer
 });
 
 var store = redux.createStore(reducer, redux.compose(
@@ -101,11 +143,18 @@ document.getElementById('app').innerHTML = state.name;
 //Subscribe to changes (simple:  callback fn gets run each time state changes)
 var unsubscribe = store.subscribe(()=>{
   var state = store.getState();
-  document.getElementById('app').innerHTML = state.name;
   console.log("New state ", store.getState());
+  if (state.map.isFetching){
+    document.getElementById('app').innerHTML = 'Loading ...';
+  }else if (state.map.url){
+    document.getElementById('app').innerHTML = '<a href="' + state.map.url + '" target="_blank">View Your Location</a>';
+  }else {
+    document.getElementById('app').innerHTML = '... ERROR !! ...';
+  }
 });
 // unsubscribe();
 
+fetchLocation();
 
 store.dispatch(changeName('Doug'));
 store.dispatch(addHobby('Skiing'));
@@ -114,6 +163,4 @@ store.dispatch(removeHobby(2));
 store.dispatch(changeName('Ted'));
 store.dispatch(addMovie('Rocky', 'Romance'));
 store.dispatch(addMovie('Rocky II', 'Action'));
-
-
 store.dispatch(removeMovie(2));
