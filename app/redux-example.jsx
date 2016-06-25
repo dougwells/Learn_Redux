@@ -1,15 +1,7 @@
 var redux = require('redux');
 
-var stateDefault = {
-  name: "Anonymous",
-  hobbies: [],
-  movies:[],
-};
-
-var nextHobbyId = 1;
-var nextMovieId = 1
-
-
+// Name Reducer and action generators
+// -----------------------
 var nameReducer = (state="Anonymous", action) =>{
   switch(action.type){
     case 'CHANGE_NAME':
@@ -19,6 +11,16 @@ var nameReducer = (state="Anonymous", action) =>{
   }
 };
 
+var changeName = (name)=> {
+  return {
+    type: 'CHANGE_NAME',
+    name
+  }
+};
+
+// Hobby Reducer and action generators
+// -----------------------
+var nextHobbyId = 1;
 var hobbyReducer = (state=[], action) =>{
   switch(action.type){
     case 'ADD_HOBBY':
@@ -36,6 +38,24 @@ var hobbyReducer = (state=[], action) =>{
        };
  };
 
+ //Actions Generators - Hobbies
+var addHobby = (hobby)=>{
+  return {
+  type: 'ADD_HOBBY',
+  hobby
+  }
+};
+var removeHobby = (id)=>{
+  return {
+    type: "REMOVE_HOBBY",
+    id
+  }
+};
+
+
+ // Movie Reducer and action generators
+ // -----------------------
+var nextMovieId = 1
  var movieReducer = (state=[], action) => {
    switch(action.type){
      case "ADD_MOVIE":
@@ -49,6 +69,22 @@ var hobbyReducer = (state=[], action) =>{
 
  };
 
+//Actions Generators - Movies
+     var addMovie = (title, genre) => {
+       return {
+         type: "ADD_MOVIE",
+         title,
+         genre
+       }
+     };
+
+     var removeMovie = (id) => {
+       return {
+         type: "REMOVE_MOVIE",
+         id
+       }
+     };
+
 var reducer = redux.combineReducers({
   name: nameReducer,
   hobbies: hobbyReducer,
@@ -59,60 +95,25 @@ var store = redux.createStore(reducer, redux.compose(
   window.devToolsExtension ? window.devToolsExtension() : f => f
 ));
 
-//Subscribe to changes
+var state = store.getState();
+document.getElementById('app').innerHTML = state.name;
+
+//Subscribe to changes (simple:  callback fn gets run each time state changes)
 var unsubscribe = store.subscribe(()=>{
   var state = store.getState();
   document.getElementById('app').innerHTML = state.name;
   console.log("New state ", store.getState());
 });
-
-var currentState = store.getState();
-console.log('Current State = ', currentState);
-
-var action = {
-  type: "CHANGE_NAME",
-  name: "Doug"
-};
-
-store.dispatch(action);
-
 // unsubscribe();
 
-store.dispatch({
-  type: "ADD_HOBBY",
-  hobby: "Skiing"
-});
 
-store.dispatch({
-  type: "ADD_HOBBY",
-  hobby: "Surfing"
-});
+store.dispatch(changeName('Doug'));
+store.dispatch(addHobby('Skiing'));
+store.dispatch(addHobby('Surfing'));
+store.dispatch(removeHobby(2));
+store.dispatch(changeName('Ted'));
+store.dispatch(addMovie('Rocky', 'Romance'));
+store.dispatch(addMovie('Rocky II', 'Action'));
 
-store.dispatch({
-  type: "REMOVE_HOBBY",
-  id: 2
-});
 
-store.dispatch({
-  type: "CHANGE_NAME",
-  name: "Ted"
-});
-
-store.dispatch({
-  type: "ADD_MOVIE",
-  title: "Rocky",
-  genre: "Romance"
-});
-
-store.dispatch({
-  type: "ADD_MOVIE",
-  title: "Rocky II",
-  genre: "Action"
-});
-
-store.dispatch({
-  type: "REMOVE_MOVIE",
-  id: 2
-});
-
-console.log(store.getState().name)
+store.dispatch(removeMovie(2));
