@@ -5,7 +5,7 @@ console.log("Starting Redux Example App");
 
 var actions = require('./actions/index');
 var store = require('./store/configureStore').configure();
-var reducers = require('./reducers/index');
+// var reducers = require('./reducers/index');
 
 
 
